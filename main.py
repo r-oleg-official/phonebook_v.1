@@ -3,7 +3,7 @@
 import os
 from phones_view import phones_view
 from user_interface import user_interface
-# from exit import exit
+from exit import exit
 from contact_search import contact_search
 from contact_add import contact_add
 from contact_delete import contact_delete
