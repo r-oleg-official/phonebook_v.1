@@ -1,0 +1,14 @@
+begin
+id:1
+ln:family-1
+fn:name-1
+tel:+79101111111
+type:home
+end
+begin
+id:2
+ln:family-2
+fn:name-2
+tel:+79102222222
+type:home
+end

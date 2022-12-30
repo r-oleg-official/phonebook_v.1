@@ -1,0 +1,21 @@
+"""["ID", "Last Name", "First Name", "tel", "item1.adr", "rev"]
+begin - start string
+id - ID
+ln - Last Name
+fn - First Name
+tel - telefon: type_phone - home/work/...,
+item1.adr - address: home/work/...
+item2.mail - e-mail
+rev - revision - datetime edit.
+end - finish string
+"""
+Example:
+begin
+id:1
+ln:family-1
+fn:name-1
+tel:home=+79101111111;work=88343311111
+item1.adr:home=USA;Maiami_beach;
+item2.mail:example@hotmail.com
+rev:2020-10-14T11:06:57Z
+end
