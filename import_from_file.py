@@ -33,8 +33,10 @@ end
 ...Чисто для коммента...
 """
 
+from contact_add import contact_add_txt
 
-def read_file(path: str) -> list:
+
+def read_file_txt(path: str) -> list:
     with open(path, 'r') as file:
         data = file.read()
         li_res = data.split("\n")
@@ -65,14 +67,15 @@ def parse_db_txt(li: list):
 
 
 def import_from_file():
+    """In progress."""
     print('Импорт контактов')
     print()
     type_file = input("Формат файла импорта (1 - txt, 2 - csv, 3 - SQLite): ")
     match type_file:
         case '1':
-            list_source = read_file('database/phone_db.txt')
-            print(list_source)
-            print(parse_db_txt(list_source))
+            path = "database/phone_db_draft.txt"
+            list_source = read_file_txt(path)
+            contact_add_txt(path, parse_db_txt(list_source))
         case '2':
             db = 'database/phone_db.csv'
         case '3':
