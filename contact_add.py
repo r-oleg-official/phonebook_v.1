@@ -1,11 +1,11 @@
 import os
-import sqlite3
+import sqlite3 as sq
 from pause import pause
 
 
-def contact_add():
+def contact_add_manual():
     os.system('cls')
-    con = sqlite3.connect('database/phone_directory.db')
+    con = sq.connect('database/phone_directory.db')
     cursor = con.cursor()
     print()
     print('Добавление контакта: ')
@@ -56,4 +56,65 @@ def contact_add():
         print('Контакт успешно добавлен!')
     con.close()
     pause()
-    
+
+
+def get_id(id_li: list, check_id: int) -> int:
+    """Get a new id."""
+    if check_id not in id_li: return check_id
+    new_id = 1
+    while id in id_li:
+        new_id += 1
+    return new_id
+
+
+def get_id_type_phone(type_phone_li: list, check_type: str) -> int:
+    ids = [item[0] for item in type_phone_li]
+    for item in type_phone_li:
+        if item[1] == check_type:
+            return item[0]
+    return -1
+
+
+def contact_add_txt(path_db: str, db_li: list):
+    """In progress."""
+    os.system('cls')
+    """Create dict for next add to DB."""
+    con = sq.connect('database/phone_directory_draft.db')
+    cursor = con.cursor()
+    directory_ids = cursor.execute('''SELECT id FROM directory''').fetchall()
+    directory_ids = [item[0] for item in directory_ids]
+    users_ids = cursor.execute('''SELECT id FROM users''').fetchall()
+    users_ids = [item[0] for item in users_ids]
+    phones_ids = cursor.execute('''SELECT id FROM phones''').fetchall()
+    phones_ids = [item[0] for item in phones_ids]
+    phones_types = cursor.execute('''SELECT id, type_of_number FROM types_of_number''').fetchall()
+    phones_types_ids = [item[0] for item in phones_types]
+
+    for items in db_li:
+        rec_id = get_id(directory_ids, int(items[0].split(':')[1]))
+        new_user_id = get_id(users_ids, 1)
+        surname = items[1].split(':')[1]
+        name = items[2].split(':')[1]
+        new_phone_id = get_id(phones_ids, 1)
+        phone = items[3].split(':')[1]
+        type_phone = items[4].split(':')[1]
+        type_phone_id = get_id_type_phone(phones_types, type_phone)
+        if type_phone_id == -1:
+            type_phone_id = get_id(phones_types_ids, 1)
+            type_phone_add = '''INSERT INTO types_of_number (id, type_of_number) VALUES (?, ?);'''
+            cursor.execute(type_phone_add, (type_phone_id, type_phone))
+            con.commit()
+
+        add_contact = '''INSERT INTO directory (id, phone_id, user_id) VALUES (?, ?, ?)'''
+        cursor.execute(add_contact, (rec_id, new_phone_id, new_user_id))
+        con.commit()
+
+        user_add = '''INSERT INTO users (id, surname, name) VALUES (?, ?, ?);'''
+        data = (new_user_id, surname, name)
+        cursor.execute(user_add, data)
+        con.commit()
+
+        phone_add = '''INSERT INTO phones (id, phone_number, type_id) VALUES (?, ?, ?);'''
+        cursor.execute(phone_add, (new_phone_id, phone, type_phone_id))
+        con.commit()
+    con.close()
