@@ -5,7 +5,7 @@ from phones_view import phones_view
 from user_interface import user_interface
 # from exit import exit
 from contact_search import contact_search
-from contact_add import contact_add
+from contact_add import contact_add_manual
 from contact_delete import contact_delete
 from import_from_file import import_from_file
 from export_phones import export_phones
@@ -15,7 +15,7 @@ import global_variables as gv
 def main():
     functions = {1: lambda: phones_view(),
                  2: lambda: contact_search(),
-                 3: lambda: contact_add(),
+                 3: lambda: contact_add_manual(),
                  4: lambda: contact_delete(),
                  5: lambda: import_from_file(),
                  6: lambda: export_phones(),
