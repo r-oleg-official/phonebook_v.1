@@ -79,7 +79,7 @@ def contact_add_txt(path_db: str, db_li: list):
     """In progress."""
     os.system('cls')
     """Create dict for next add to DB."""
-    con = sq.connect('database/phone_directory_draft.db')
+    con = sq.connect(path_db)
     cursor = con.cursor()
     directory_ids = cursor.execute('''SELECT id FROM directory''').fetchall()
     directory_ids = [item[0] for item in directory_ids]
