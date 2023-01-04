@@ -4,6 +4,18 @@ from pause import pause
 import csv
 
 
+def write_file(path: str, line: str):
+    """In progress."""
+    with open(path, 'w') as file:
+        file.writelines(line)
+
+
+def append_file(path: str, line: str):
+    """In progress."""
+    with open(path, 'a') as file:
+        file.writelines(line)
+
+
 def export_phones():
     os.system('cls')
     print('Экспорт телефонной книги')
