@@ -58,7 +58,7 @@ def contact_add_manual():
     pause()
 
 
-def contact_add_txt(path_db: str, db_li: list):
+def contact_add_txt_csv(path_db: str, db_li: list):
     """In progress."""
     os.system('cls')
     with sq.connect(path_db) as con:
