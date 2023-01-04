@@ -18,10 +18,10 @@
 Мой вариант формата txt:
 begin
 id:1
-ln:family-1
-fn:name-1
-tel:+79101111111
-type:home
+last_name:Иванов
+first_name:Иван
+phone:+79101111111
+type_phone:Домашний
 end
 
 Еще раз основная задача на текущий момент - из файла txt и csv получить список всех
@@ -40,8 +40,12 @@ import csv
 def read_file_txt(path: str) -> list:
     with open(path, 'r') as file:
         data = file.read()
-        li_res = data.split("\n")
-        li_res = [item for item in li_res if item != 'begin' and item != 'end' and item != '']
+        li = data.split("\n")
+        li = [item for item in li if item != 'begin' and item != 'end' and item != '']
+
+    li_res = []
+    for i in range(0, len(li) - 4, 5):
+        li_res.append(li[i: i + 5])
     return li_res
 
 
@@ -58,26 +62,9 @@ def read_file_csv(path: str) -> list:
     return data
 
 
-def write_file(path: str, line: str):
-    with open(path, 'w') as file:
-        file.writelines(line)
-
-
-def append_file(path: str, line: str):
-    with open(path, 'a') as file:
-        file.writelines(line)
-
-
 def determine_file_extension(file: str) -> str:
+    """In progress."""
     return file.split('.')[1]
-
-
-def parse_db_txt(li: list):
-    start_pos: int = 1
-    li_res = []
-    for i in range(0, len(li) - 4, 5):
-        li_res.append(li[i: i + 5])
-    return li_res
 
 
 def import_from_file():
@@ -90,12 +77,12 @@ def import_from_file():
             path_to_db = "database/phone_directory.db"
             path_import = "database/phone_db.txt"
             list_import = read_file_txt(path_import)
-            contact_add_txt_csv(path_to_db, parse_db_txt(list_import))
+            contact_add_txt_csv(path_to_db, list_import)
         case '2':
             path_to_db = "database/phone_directory.db"
             path_import = "database/phone_db.csv"
             list_import = read_file_csv(path_import)
-            contact_add_txt_csv(path_to_db, parse_db_txt(list_import))
+            contact_add_txt_csv(path_to_db, list_import)
         case _:
             return
 
@@ -104,11 +91,19 @@ def import_from_file_v2():
     """Import from user's input path to file for import."""
     print('Импорт контактов')
     print()
-    file_extension = determine_file_extension(input("Путь/имя_файла: "))
-    match file_extension:
+    file = input("Путь/имя_файла: ")
+    filename = file.split('.')[0]
+    file_type = file.split('.')[1]
+    match file_type:
         case 'txt':
-            db = 'database/phone_db.txt'
+            path_to_db = "database/phone_directory.db"
+            path_import = f'{filename}.txt'
+            list_import = read_file_txt(path_import)
+            contact_add_txt_csv(path_to_db, list_import)
         case 'csv':
-            db = 'database/phone_db.csv'
+            path_to_db = "database/phone_directory.db"
+            path_import = f'{filename}.csv'
+            list_import = read_file_csv(path_import)
+            contact_add_txt_csv(path_to_db, list_import)
         case _:
             return
