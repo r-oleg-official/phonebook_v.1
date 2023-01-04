@@ -86,6 +86,7 @@ def import_from_file():
 
 
 def import_from_file_v2():
+    """Import from user's input path to file for import."""
     print('Импорт контактов')
     print()
     file_extension = determine_file_extension(input("Путь/имя_файла: "))
@@ -98,7 +99,3 @@ def import_from_file_v2():
             db = 'database/phone_directory.db'
         case _:
             return
-
-
-# if __name__ == "__main__":
-#     import_from_file()
