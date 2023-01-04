@@ -73,9 +73,10 @@ def import_from_file():
     type_file = input("Формат файла импорта (1 - txt, 2 - csv, 3 - SQLite): ")
     match type_file:
         case '1':
-            path = "database/phone_db.txt"
-            list_source = read_file_txt(path)
-            contact_add_txt(path, parse_db_txt(list_source))
+            path_to_db = "database/phone_directory.db"
+            path_import = "database/phone_db.txt"
+            list_source = read_file_txt(path_import)
+            contact_add_txt(path_to_db, parse_db_txt(list_source))
         case '2':
             db = 'database/phone_db.csv'
         case '3':

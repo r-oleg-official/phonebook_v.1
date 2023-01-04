@@ -58,63 +58,51 @@ def contact_add_manual():
     pause()
 
 
-def get_id(id_li: list, check_id: int) -> int:
-    """Get a new id."""
-    if check_id not in id_li: return check_id
-    new_id = 1
-    while id in id_li:
-        new_id += 1
-    return new_id
-
-
-def get_id_type_phone(type_phone_li: list, check_type: str) -> int:
-    ids = [item[0] for item in type_phone_li]
-    for item in type_phone_li:
-        if item[1] == check_type:
-            return item[0]
-    return -1
-
-
 def contact_add_txt(path_db: str, db_li: list):
     """In progress."""
     os.system('cls')
-    """Create dict for next add to DB."""
-    con = sq.connect(path_db)
-    cursor = con.cursor()
-    directory_ids = cursor.execute('''SELECT id FROM directory''').fetchall()
-    directory_ids = [item[0] for item in directory_ids]
-    users_ids = cursor.execute('''SELECT id FROM users''').fetchall()
-    users_ids = [item[0] for item in users_ids]
-    phones_ids = cursor.execute('''SELECT id FROM phones''').fetchall()
-    phones_ids = [item[0] for item in phones_ids]
-    phones_types = cursor.execute('''SELECT id, type_of_number FROM types_of_number''').fetchall()
-    phones_types_ids = [item[0] for item in phones_types]
+    with sq.connect(path_db) as con:
+        cursor = con.cursor()
 
-    for items in db_li:
-        rec_id = get_id(directory_ids, int(items[0].split(':')[1]))
-        new_user_id = get_id(users_ids, 1)
-        surname = items[1].split(':')[1]
-        name = items[2].split(':')[1]
-        new_phone_id = get_id(phones_ids, 1)
-        phone = items[3].split(':')[1]
-        type_phone = items[4].split(':')[1]
-        type_phone_id = get_id_type_phone(phones_types, type_phone)
-        if type_phone_id == -1:
-            type_phone_id = get_id(phones_types_ids, 1)
-            type_phone_add = '''INSERT INTO types_of_number (id, type_of_number) VALUES (?, ?);'''
-            cursor.execute(type_phone_add, (type_phone_id, type_phone))
+    for item in db_li:
+        surname = item[1].split(':')[1]
+        name = item[2].split(':')[1]
+        phone = item[3].split(':')[1]
+        phone_type = item[4].split(':')[1]
+
+        query = """ SELECT id, type_of_number FROM types_of_number WHERE type_of_number = ? """
+        if cursor.execute(query, (phone_type,)).fetchone() is None:
+            query = """ INSERT INTO types_of_number (type_of_number) VALUES (?) """
+            cursor.execute(query, (phone_type,))
             con.commit()
 
-        add_contact = '''INSERT INTO directory (id, phone_id, user_id) VALUES (?, ?, ?)'''
-        cursor.execute(add_contact, (rec_id, new_phone_id, new_user_id))
-        con.commit()
+        query = """ SELECT id, type_of_number FROM types_of_number WHERE type_of_number = ? """
+        phone_type_id = cursor.execute(query, (phone_type,)).fetchone()[0]
 
-        user_add = '''INSERT INTO users (id, surname, name) VALUES (?, ?, ?);'''
-        data = (new_user_id, surname, name)
-        cursor.execute(user_add, data)
-        con.commit()
+        query = """ SELECT phones.id id, phones.phone_number phn, types_of_number.type_of_number typ,
+                                    types_of_number.id id_typ
+                                    FROM phones, types_of_number WHERE phones.type_id = types_of_number.id 
+                                    AND phn = ? """
+        if cursor.execute(query, (phone,)).fetchone() is None:
+            query = """ INSERT INTO phones (phone_number, type_id) VALUES (?, ?) """
+            phone_id = cursor.execute(query, (phone, phone_type_id)).lastrowid
+            con.commit()
 
-        phone_add = '''INSERT INTO phones (id, phone_number, type_id) VALUES (?, ?, ?);'''
-        cursor.execute(phone_add, (new_phone_id, phone, type_phone_id))
-        con.commit()
-    con.close()
+        query = """ SELECT phones.id id, phones.phone_number phn, types_of_number.type_of_number typ,
+                                            types_of_number.id id_typ
+                                            FROM phones, types_of_number WHERE phones.type_id = types_of_number.id 
+                                            AND phn = ? """
+        phone_id = cursor.execute(query, (phone,)).fetchone()[0]
+
+        query = """ SELECT directory.id, users.surname, users.name, phones.phone_number, types_of_number.type_of_number 
+                            FROM directory, users, phones, types_of_number
+                            WHERE directory.user_id = users.id AND directory.phone_id = phones.id AND 
+                            phones.type_id = types_of_number.id AND users.surname = ? AND users.name = ? AND
+                            phones.phone_number = ? """
+        if cursor.execute(query, (surname, name, phone)).fetchone() is None:
+            query = """ INSERT INTO users (surname, name) VALUES (?, ?) """
+            user_id = cursor.execute(query, (surname, name)).lastrowid
+            con.commit()
+            query = """ INSERT INTO directory (phone_id, user_id) VALUES (?, ?) """
+            cursor.execute(query, (phone_id, user_id))
+            con.commit()
