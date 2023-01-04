@@ -33,7 +33,8 @@ end
 ...Чисто для коммента...
 """
 
-from contact_add import contact_add_txt
+from contact_add import contact_add_txt_csv
+import csv
 
 
 def read_file_txt(path: str) -> list:
@@ -42,6 +43,19 @@ def read_file_txt(path: str) -> list:
         li_res = data.split("\n")
         li_res = [item for item in li_res if item != 'begin' and item != 'end' and item != '']
     return li_res
+
+
+def read_file_csv(path: str) -> list:
+    with open(path, "r", encoding="UTF-8") as file:
+        data = [row for row in csv.reader(file)]
+
+    headers = data[0]
+    data = data[1:]
+
+    for item in data:
+        for i in range(len(item)):
+            item[i] = f'{headers[i]}:{item[i]}'
+    return data
 
 
 def write_file(path: str, line: str):
@@ -62,7 +76,7 @@ def parse_db_txt(li: list):
     start_pos: int = 1
     li_res = []
     for i in range(0, len(li) - 4, 5):
-        li_res.append(tuple(li[i: i + 5]))
+        li_res.append(li[i: i + 5])
     return li_res
 
 
@@ -70,17 +84,18 @@ def import_from_file():
     """In progress."""
     print('Импорт контактов')
     print()
-    type_file = input("Формат файла импорта (1 - txt, 2 - csv, 3 - SQLite): ")
+    type_file = input("Формат файла импорта (1 - txt, 2 - csv): ")
     match type_file:
         case '1':
             path_to_db = "database/phone_directory.db"
             path_import = "database/phone_db.txt"
-            list_source = read_file_txt(path_import)
-            contact_add_txt(path_to_db, parse_db_txt(list_source))
+            list_import = read_file_txt(path_import)
+            contact_add_txt_csv(path_to_db, parse_db_txt(list_import))
         case '2':
-            db = 'database/phone_db.csv'
-        case '3':
-            db = 'database/phone_directory.db'
+            path_to_db = "database/phone_directory.db"
+            path_import = "database/phone_db.csv"
+            list_import = read_file_csv(path_import)
+            contact_add_txt_csv(path_to_db, parse_db_txt(list_import))
         case _:
             return
 
@@ -95,7 +110,5 @@ def import_from_file_v2():
             db = 'database/phone_db.txt'
         case 'csv':
             db = 'database/phone_db.csv'
-        case 'db':
-            db = 'database/phone_directory.db'
         case _:
             return
